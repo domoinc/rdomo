@@ -5,7 +5,13 @@ This package provides access to Domo's public APIs for the purpose of transferri
 To install, please install the devtools package and type the following command.
 
 ```r
-devtools::install_github(repo='domoinc/rdomo')
+devtools::install_github(repo='domoinc/rdomo',ref='main')
+```
+
+This installation will re-install any of the dependencies needed for operating the package. If you don't want to re-install packages, use the following code. Doing this might affect the operation of the package.
+
+```r
+devtools::install_github(repo='domoinc/rdomo',ref='main',dependencies=FALSE)
 ```
 
 ## Setup and Authentication
