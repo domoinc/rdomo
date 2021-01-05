@@ -274,15 +274,18 @@ DomoUtilities <- setRefClass("DomoUtilities",
 #' All methods documented separately via standard documentation methods.
 Domo <- setRefClass("Domo",contains='DomoUtilities',
 	methods=list(
-		ds_get=function(ds,r_friendly_names=FALSE,...){
+		ds_get=function(ds,r_friendly_names=NULL,...){
 			"Download data from Domo into a dataframe (tibble)."
 			my_headers <- httr::add_headers(c(Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			my_url <- paste('https://',.self$domain,'/v1/datasets/',ds,'/data',sep='')
 			out <- httr::content((httr::GET(my_url,my_headers,query=list(includeHeader='true',fileName='bogus.csv'))),na=c('\\N'),...)
 			
 			# This allows the user to set r_friendly_names = TRUE by default
-			rfn <- r_friendly_names
-			if( Sys.getenv('RDOMO_RFN') != '' ){
+			rfn <- FALSE
+			if( !is.null(r_friendly_names) ){
+				rfn <- r_friendly_names
+			}
+			if( Sys.getenv('RDOMO_RFN') != '' & is.null(r_friendly_names) ){
 				rfn <- Sys.getenv('RDOMO_RFN')
 			}
 
