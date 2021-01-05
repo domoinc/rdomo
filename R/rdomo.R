@@ -34,9 +34,8 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			auth64 <- RCurl::base64(paste(.self$client_id,.self$secret,sep=':'))[[1]]
 			my_headers <- httr::add_headers(c(Authorization=paste('Basic',auth64,sep=' ')))
 
-			type <- 'data'
-			access <- httr::content(httr::GET(paste('https://',.self$domain,'/oauth/token',sep=''),my_headers,query=list(grant_type='client_credentials',scope=paste(.self$scope,collapse=' '))))
-
+			access <- httr::content(httr::GET(paste('https://',.self$domain,'/oauth/token',sep=''),my_headers,query=list(grant_type='client_credentials')))
+			
 			return_value <- 0
 			if( !is.null(access$access_token) ){
 				assign('access', access$access_token, .self$api_env)
