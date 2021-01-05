@@ -55,7 +55,7 @@ After clicking Create, the developer site will display your client id and secret
 Your client id and secret are then used to authenticate from R. To create a new connection to Domo, use the following code.
 
 ```r
-domo <- rdomo::Domo(client_id='your client id',secret='your secret',scope=c('data','user'))
+domo <- rdomo::Domo(client_id='your client id',secret='your secret')
 ```
 
 This code creates an object called "domo" that stores all your connection information and all functions necessary to interact with Domo's API. For example, if you would like to download a data set from Domo, you can now use the following code. (The data set id can be found in the URL for a data set in Domo's data center or you can use the "ds_list" function to get a list of all your data sets.)
@@ -71,10 +71,10 @@ RDOMO_CLIENT_ID="your client id"
 RDOMO_SECRET="your secret"
 ```
 
-When this is done, you can now connect without needing to specify those values. You will still need to specify which scopes you will be using (rdomo does not auto-detect the scopes assigned to your credentials).
+When this is done, you can now connect without needing to specify those values.
 
 ```r
-domo <- rdomo::Domo(scope=c('data','user'))
+domo <- rdomo::Domo()
 ```
 
 ### Reference classes
@@ -84,8 +84,8 @@ This package uses a reference class as the primary way of interacting with the D
 The primary benefit of using refernce classes in this package is the ability to authenticate easily against multiple Domo instances. When this is done, you can transfer data or make other modifications to multiple instances. For example, the following code authenticates against two different Domo instances, downloads data from one instance and pushes that same data to the seccond instance.
 
 ```r
-domo1 <- rdomo::Domo(client_id="client id 1",secret="secret 1",scope='data')
-domo2 <- rdomo::Domo(client_id="client id 2",secret="secret 2",scope='data')
+domo1 <- rdomo::Domo(client_id="client id 1",secret="secret 1")
+domo2 <- rdomo::Domo(client_id="client id 2",secret="secret 2")
 
 data_set_to_copy <- 'data set id'
 
