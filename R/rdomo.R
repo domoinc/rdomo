@@ -435,6 +435,8 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			return(out)
 		},
 		groups_delete=function(group_id){
+			existing_users <- .self$groups_list_users(group_id)
+			del_users <- .self$groups_remove_users(group_id,existing_users)
 			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			out <- (httr::DELETE(paste('https://',.self$domain,'/v1/groups/',group_id,sep=''),my_headers))
 			return(out)
