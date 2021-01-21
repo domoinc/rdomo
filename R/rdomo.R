@@ -356,13 +356,18 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 		},
 		ds_delete=function(ds,prompt_before_delete=TRUE){
 			"Delete a data set."
+			del_data <- 'Y'
 			if( prompt_before_delete ){
-				invisible(readline(prompt="Permanently deletes a DataSet from your Domo instance. This is destructive and cannot be reversed. Press enter to continue."))
+				del_data <- invisible(readline(prompt="Permanently delete this data set? This is destructive and cannot be reversed. (Y/n)"))
+				cat(del_data,fill=TRUE)
 			}
-			my_headers <- httr::add_headers(c(Authorization=paste('bearer',.self$get_access(),sep=' ')))
-			my_url <- paste('https://',.self$domain,'/v1/datasets/',ds,sep='')
-			out <- (httr::DELETE(my_url,my_headers))
-			out_status <- ifelse(out$status_code == 204,'Successfully deleted a dataset','Some Failure')
+			out_status <- 'Data set not deleted.'
+			if( del_data == 'Y' ){
+				my_headers <- httr::add_headers(c(Authorization=paste('bearer',.self$get_access(),sep=' ')))
+				my_url <- paste('https://',.self$domain,'/v1/datasets/',ds,sep='')
+				out <- (httr::DELETE(my_url,my_headers))
+				out_status <- ifelse(out$status_code == 204,'Successfully deleted a dataset','Some Failure')
+			}
 			return(out_status)
 		},
 		ds_query=function(ds,query,return_data=TRUE){
@@ -430,6 +435,8 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			return(out)
 		},
 		groups_delete=function(group_id){
+			existing_users <- .self$groups_list_users(group_id)
+			del_users <- .self$groups_remove_users(group_id,existing_users)
 			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			out <- (httr::DELETE(paste('https://',.self$domain,'/v1/groups/',group_id,sep=''),my_headers))
 			return(out)

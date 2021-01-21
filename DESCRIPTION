@@ -1,9 +1,9 @@
 Package: rdomo
 Type: Package
 Title: Domo API Interface
-Version: 0.1.0
+Version: 0.1.0.1
 Author: Domo Inc
-Maintainer: DS Tools <jeremy.morris@domo.com>
+Maintainer: Jeremy Morris <jeremy.morris@domo.com>
 Description: This package interfaces with Domo's public api (see developer.domo.com)
 License: MIT
 Encoding: UTF-8
