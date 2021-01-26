@@ -67,7 +67,7 @@ my_dataset <- domo$ds_get('some data set id')
 In order to simplify writing code against the API, you can put your credentials into your global environment. This has the benefit of eliminating the need to type your credentials everytime you need to connect AND it keeps your credentials out of every one of the scripts you will write. To do this, put the following in your .Renviron file in your home folder.
 
 ```r
-RDOMO_CLIENT_ID="your client id"
+RDOMO_CLIENTID="your client id"
 RDOMO_SECRET="your secret"
 ```
 
