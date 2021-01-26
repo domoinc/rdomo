@@ -525,6 +525,12 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			out <- httr::content(httr::PUT(my_url,my_headers,body=rjson::toJSON(page_def)))
 			return(out)
 		},
+		page_delete=function(page_id){
+			my_headers <- httr::add_headers(c(Authorization=paste('bearer',.self$get_access(),sep=' ')))
+			my_url <- paste0('https://',.self$domain,'/v1/pages/',page_id)
+			out <- httr::content(httr::DELETE(my_url,my_headers))
+			return(out)
+		},
 		#### PDP Related Functions ####
 		pdp_create=function(ds,policy_def){
 			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
