@@ -42,6 +42,10 @@ DomoUtilities <- setRefClass("DomoUtilities",
 				access_time <<- Sys.time()
 				return_value <- 1
 			}
+			
+			if( access$status == 401 ){
+				stop('Access error: ',access$status,' ',access$message)
+			}
 
 			return(access)
 
