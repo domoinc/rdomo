@@ -43,7 +43,7 @@ DomoUtilities <- setRefClass("DomoUtilities",
 				return_value <- 1
 			}
 			
-			if( access$status == 401 ){
+			if( !is.null(access$status) ){
 				stop('Access error: ',access$status,' ',access$message)
 			}
 
