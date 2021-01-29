@@ -11,10 +11,12 @@ ds_query(ds, query, return_data = TRUE)
 
 \item{query}{DQL query to process}
 
-\item{return_data}{TRUE if you want a tibble returned, FALSE for the original call}
+\item{return_data}{TRUE if you want a tibble returned, FALSE for the original output}
 }
 \value{
-List object containing data set meta data.
+When return_data = TRUE this function will return a tibble. Note that the way ds_query handles NA values is different than ds_get. You may see different data types from these two functions as a result.
+
+The API currently returns a limit of 1M records. We look to retrieve more than 1M records in future versions of this package.
 }
 \description{
 Run a query against a data set in Domo.

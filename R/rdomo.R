@@ -42,6 +42,10 @@ DomoUtilities <- setRefClass("DomoUtilities",
 				access_time <<- Sys.time()
 				return_value <- 1
 			}
+			
+			if( !is.null(access$status) ){
+				stop('Access error: ',access$status,' ',access$message)
+			}
 
 			return(access)
 
@@ -372,10 +376,30 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 		},
 		ds_query=function(ds,query,return_data=TRUE){
 			"Evaluate a query against a data set."
-			interpret_query <- function(x,col_names){
+			set_type <- function(x,type){
 				out <- x
-				names(out) <- col_names
-				return(tibble::as_tibble(out))
+				if( type == 'DOUBLE' ){
+					out <- as.numeric(x)
+				}
+				if( type == 'DATE' ){
+					out <- as.Date(x,format='%Y-%m-%d')
+				}
+				if( type == 'DATETIME' ){
+					out <- as.POSIXct(x,format='%Y-%m-%dT%H:%M:%S')
+				}
+				if( type == 'LONG' ){
+					out <- as.integer(x)
+				}
+				return(out)
+			}
+			interpret_query <- function(x,col_names,metadata){
+				add_names <- x
+				names(add_names) <- col_names
+				all_types <- lapply(metadata,function(y){y$type})
+				get_types <- mapply(set_type,add_names,all_types,SIMPLIFY=FALSE)
+				# remove_blanks <- add_names[ add_names != '' ]
+				out <- as_tibble(get_types)
+				return(out)
 			}
 			my_headers <- httr::add_headers(c('Content-Type'='application/json','Accept'='application/json',Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			my_url <- paste('https://',.self$domain,'/v1/datasets/query/execute/',ds,sep='')
@@ -385,7 +409,7 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			out <- httr::content((httr::POST(my_url,my_headers,body=rjson::toJSON(query_body))))
 			out_out <- out
 			if( return_data ){
-				out_out <- dplyr::bind_rows(lapply(out$rows,interpret_query,col_names=out$columns))
+				out_out <- dplyr::bind_rows(lapply(out$rows,interpret_query,col_names=out$columns,metadata=out$metadata))
 			}
 			return(out_out)
 		},
@@ -523,6 +547,12 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			my_url <- paste0('https://',.self$domain,'/v1/pages/',page_id)
 			out <- httr::content(httr::PUT(my_url,my_headers,body=rjson::toJSON(page_def)))
+			return(out)
+		},
+		page_delete=function(page_id){
+			my_headers <- httr::add_headers(c(Authorization=paste('bearer',.self$get_access(),sep=' ')))
+			my_url <- paste0('https://',.self$domain,'/v1/pages/',page_id)
+			out <- httr::content(httr::DELETE(my_url,my_headers))
 			return(out)
 		},
 		#### PDP Related Functions ####
