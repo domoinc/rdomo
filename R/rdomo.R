@@ -106,15 +106,11 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			return(schema_def)
 		},
 		schema_data=function(data) {
-			schema <- list()
-			if(!is.null(data)) {
-				for (i in 1:ncol(data)) {
-					t.name <- names(data)[i]
-					t.type <- .self$typeConversionText(data,i)
-					schema$name[length(schema$name)+1] <- t.name
-					schema$type[length(schema$type)+1] <- t.type
-				}
-			}
+			types <- lapply(data,function(x){ .self$r_to_domo_type(class(x)[1]) })
+			schema <- list(
+				name=names(data),
+				type=unlist(types,use.names=FALSE)
+			)
 			return(schema)
 		},
 		util_ds_meta=function(ds){
@@ -135,35 +131,18 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			}
 			return(columns)
 		},
-		typeConversionText=function(data, colindex) {
-			result <- 'STRING' #default column type
-			date_time <- .self$convertDomoDateTime(data[,colindex])
-			if(!is.na(date_time[1])){
-				type <- class(date_time)[1]
-				if(type == 'Date') result <- 'DATE'
-				if(type == 'POSIXct') result <- 'DATETIME'
-				if(type == 'POSIXlt') result <- 'DATETIME'
-			}else{
-				type <- class(data[,colindex])[1]
-				if(type == 'character') result <- 'STRING'
-				if(type == 'numeric') result <- 'DOUBLE'
-				if(type == 'integer') result <- 'LONG'
-				if(type == 'Date') result <- 'DATE'
-				if(type == 'POSIXct') result <- 'DATETIME'
-				if(type == 'factor') result <- 'STRING'
-				if(type == 'ts') result <- 'DOUBLE'
-			}
-			return(result)
-		},
-		convertDomoDateTime=function(v) {
-
-			date_time <- tryCatch({ as.POSIXct(strptime(v,"%Y-%m-%dT%H:%M:%S")) }, error = function(err) { NA })
-			if (is.na(date_time[1]))
-				date_time <- tryCatch({ as.POSIXct(strptime(v,"%Y-%m-%d %H:%M:%S")) }, error = function(err) { NA })
-			if (is.na(date_time[1]))
-				date_time <- tryCatch({ as.Date(v) }, error = function(err) { NA })
-
-			return(date_time)
+		r_to_domo_type=function(class_str){
+			type_conv <- list(
+				'Date'='DATE',
+				'POSIXct'='DATETIME',
+				'POSIXlt'='DATETIME',
+				'character'='STRING',
+				'numeric'='DOUBLE',
+				'integer'='LONG',
+				'factor'='STRING',
+				'ts'='DOUBLE'
+			)
+			return(type_conv[[class_str]])
 		},
 		get_stream_id=function(ds_id) {
 
