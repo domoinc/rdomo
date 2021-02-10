@@ -185,7 +185,7 @@ DomoUtilities <- setRefClass("DomoUtilities",
 
 			domoSchema <- rjson::toJSON(list(columns=.self$schema_domo(ds_id)))
 			dataSchema <- rjson::toJSON(list(columns=.self$schema_data(df_up)))
-			
+
 			stream_id <- .self$get_stream_id(ds_id)
 
 			if(!(identical(domoSchema,dataSchema))){
@@ -199,28 +199,17 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			exec_id <- .self$start_execution(stream_id)
 
 			total_rows <- nrow(df_up)
-
 			CHUNKSZ <- .self$estimate_rows(df_up)
-			# cat(CHUNKSZ,fill=TRUE)
-			start <- 1
-			end <- total_rows
-			part <- 1
-			repeat {
-				if (total_rows - end > CHUNKSZ) {
-					end <- start + CHUNKSZ
-				} else {
-					end <- total_rows
-				}
-				data_frag <- df_up[start:end,]
-				.self$uploadPartStr(stream_id, exec_id, part, data_frag)
-				part <- part + 1
-				start <- end + 1
-				if (start >= total_rows){
-					break
-				}
-			}
+			dta_chunks <- split(df_up,f=ceiling(seq_along(df_up[,1])/CHUNKSZ))
+			dta_parts <- as.list(seq(from=1,to=ceiling(total_rows/CHUNKSZ)))
+			
+			up_dta <- mapply(function(dta,part){
+				.self$uploadPartStr(stream_id, exec_id, part, dta)
+			},dta_chunks,dta_parts)
 
 			result <- .self$commitStream(stream_id, exec_id)
+
+			return(result)
 		},
 		uploadPartStr=function (stream_id, exec_id, part, data) {
 			FNAME <- tempfile(pattern="domo", fileext=".gz")
