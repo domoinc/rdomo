@@ -636,7 +636,7 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			})
 			
 			if( df_output ){
-				out <- dplyr::bind_rows(lapply(out,as_tibble))
+				out <- dplyr::bind_rows(lapply(out,tibble::as_tibble))
 			}
 			
 			return(out)
