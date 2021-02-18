@@ -159,7 +159,7 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			}
 			return (json[[1]]$id)
 		},
-		stream_upload=function(ds_id, up_ds){
+		stream_upload=function(ds_id,up_ds,cores=1){
 			df_up <- as.data.frame(up_ds)
 
 			domoSchema <- rjson::toJSON(list(columns=.self$schema_domo(ds_id)))
@@ -179,12 +179,38 @@ DomoUtilities <- setRefClass("DomoUtilities",
 
 			total_rows <- nrow(df_up)
 			CHUNKSZ <- .self$estimate_rows(df_up)
+			if( cores < 0 ){
+				CHUNKSZ <- min(c(ceiling(total_rows/(parallel::detectCores() - 1)),.self$estimate_rows(df_up)))
+			}
 			dta_chunks <- split(df_up,f=ceiling(seq_along(df_up[,1])/CHUNKSZ))
 			dta_parts <- as.list(seq(from=1,to=ceiling(total_rows/CHUNKSZ)))
 			
-			up_dta <- mapply(function(dta,part){
-				.self$uploadPartStr(stream_id, exec_id, part, dta)
-			},dta_chunks,dta_parts)
+			dta_upload <- mapply(function(chunk,part){
+				list(dta=chunk,part=part)
+			},dta_chunks,dta_parts,SIMPLIFY=FALSE)
+			
+			t_upload_data <- function(x){
+				.self$uploadPartStr(stream_id, exec_id, x$part, x$dta)
+			}
+			
+			if( cores == 1 | length(dta_parts) == 1 ){
+				cat('Cores used = 1','|','Parts to upload = ',length(dta_parts),fill=TRUE)
+				up_dta <- lapply(dta_upload,t_upload_data)
+			}else if( cores > 1 ){
+				cores_available <- parallel::detectCores() - 1
+				cores_to_use <- min(c(cores,cores_available,length(dta_parts)))
+				cat('Cores used = ',cores_to_use,'|','Parts to upload = ',length(dta_parts),fill=TRUE)
+				cl <- parallel::makeCluster(cores_to_use,type='FORK')
+				up_dta <- parallel::parLapply(cl,dta_upload,t_upload_data)
+				parallel::stopCluster(cl)
+			}else if( cores < 0 ){
+				cores_available <- parallel::detectCores() - 1
+				cores_to_use <- cores_available
+				cat('Cores used = ',cores_to_use,'|','Parts to upload = ',length(dta_parts),fill=TRUE)
+				cl <- parallel::makeCluster(cores_to_use,type='FORK')
+				up_dta <- parallel::parLapply(cl,dta_upload,t_upload_data)
+				parallel::stopCluster(cl)
+			}
 
 			result <- .self$commitStream(stream_id, exec_id)
 
@@ -280,18 +306,18 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 
 			return(out)
 		},
-		ds_create=function(df_up,name,description='',update_method='REPLACE'){
+		ds_create=function(df_up,name,description='',update_method='REPLACE',...){
 			"Create a new data set."
 			#creates a stream
 			ds <- .self$stream_create(df_up, name, description, update_method)
 
 			#upload
-			.self$stream_upload(ds, df_up)
+			.self$stream_upload(ds, df_up,...)
 			return(ds)
 		},
-		ds_update=function(ds_id, df_up){
+		ds_update=function(ds_id, df_up,...){
 			"Update an existing data set."
-			.self$stream_upload(ds_id, df_up)
+			.self$stream_upload(ds_id, df_up,...)
 		},
 		ds_meta=function(...){
 			"Get all meta data related to a data set."

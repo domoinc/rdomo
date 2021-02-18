@@ -9,5 +9,5 @@ License: MIT
 Encoding: UTF-8
 LazyData: true
 Imports:
-	httr,dplyr,pryr,tibble,tidyr,readr
+	httr,dplyr,pryr,tibble,tidyr,readr,parallel
 RoxygenNote: 7.1.0
