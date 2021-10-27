@@ -14,12 +14,12 @@ ds_create(df_up, name, description = "", update_method = "REPLACE",
 
 \item{description}{Optional data set description.}
 
-\item{update_method}{Optional choose the appropriate updateMethod when importing data via the API. Available choices are either to APPEND or REPLACE.}
+\item{update_method}{Optional choose the appropriate updateMethod when importing data via the API. Available choices are either APPEND, UPSERT or REPLACE. The UPSERT method will act like APPEND unless key_column_names is specified.}
 
-\item{other_props}{List of addtional properties to send. Currently non-functional}
+\item{key_column_names}{Simple list of fields to use as key column names for UPSERT update_method.}
 }
 \value{
-I'm sure something comes back...
+This function will return the data set id of the data set that was created.
 }
 \description{
 Download a given data set.
