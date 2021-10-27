@@ -76,11 +76,14 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			}
 			return(out)
 		},
-		stream_create=function(up_ds, name, description, updateMethod){
+		stream_create=function(up_ds,name,description,updateMethod,keyColumnNames){
 			df_up <- as.data.frame(up_ds)
 
 			dataframe_schema <- .self$schema_definition(df_up)
 			json <- list(dataSet=list(name=name, description=description, schema=list(columns=dataframe_schema$columns)), updateMethod=updateMethod)
+			if( updateMethod == 'UPSERT' & class(keyColumnNames) == 'character' & max(is.na(keyColumnNames)) == 0 ){
+			    json$keyColumnNames <- keyColumnNames
+			}
 			body <- rjson::toJSON(json)
 
 			headers <- httr::add_headers(c("Content-Type"='application/json', Accept='application/json', Authorization=paste('bearer',.self$get_access(), sep=' ')))
@@ -312,10 +315,10 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 
 			return(out)
 		},
-		ds_create=function(df_up,name,description='',update_method='REPLACE'){
+		ds_create=function(df_up,name,description='',update_method='REPLACE',key_column_names=NA){
 			"Create a new data set."
 			#creates a stream
-			ds <- .self$stream_create(df_up, name, description, update_method)
+			ds <- .self$stream_create(df_up, name, description, update_method,key_column_names)
 
 			#upload
 			.self$stream_upload(ds, df_up)
