@@ -381,7 +381,7 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			"Evaluate a query against a data set."
 			set_type <- function(x,type){
 				out <- x
-				if( type == 'DOUBLE' ){
+				if( type %in% c('DOUBLE','LONG') ){
 					out <- as.numeric(x)
 				}
 				if( type == 'DATE' ){
@@ -389,9 +389,6 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 				}
 				if( type == 'DATETIME' ){
 					out <- as.POSIXct(x,format='%Y-%m-%dT%H:%M:%S')
-				}
-				if( type == 'LONG' ){
-					out <- as.integer(x)
 				}
 				return(out)
 			}
