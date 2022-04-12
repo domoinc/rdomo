@@ -416,6 +416,28 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 			}
 			return(out_out)
 		},
+		ds_modify=function(ds,new_name='',new_description='',owner_id=0,owner_name=''){
+			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
+			my_url <- paste('https://',.self$domain,'/v1/datasets/',ds,sep='')
+            owner <- list(name=owner_name,id=owner_id
+			update <- list()
+            if( new_name != '' ){
+                update$name <- new_name
+            }
+            if( owner_id > 0 && owner_name != '' ){
+                update$owner <- list(name=owner_name,id=owner_id)
+            }
+			if( new_description != '' ){
+				update$description <- new_description
+			}
+            
+            if( length(update) <= 0 ) {
+                stop('Invalid dataset update request.')    
+            }
+
+			out <- (httr::PUT(my_url,my_headers,body=rjson::toJSON(update)))
+			return(out)
+		},
 		ds_rename=function(ds,new_name,new_description=''){
 			my_headers <- httr::add_headers(c(Accept="application/json","Content-Type"="application/json",Authorization=paste('bearer',.self$get_access(),sep=' ')))
 			my_url <- paste('https://',.self$domain,'/v1/datasets/',ds,sep='')
