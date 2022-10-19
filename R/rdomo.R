@@ -401,7 +401,7 @@ Domo <- setRefClass("Domo",contains='DomoUtilities',
 				all_types <- lapply(metadata,function(y){y$type})
 				get_types <- mapply(set_type,add_names,all_types,SIMPLIFY=FALSE)
 				# remove_blanks <- add_names[ add_names != '' ]
-				out <- as_tibble(get_types)
+				out <- tibble::as_tibble(get_types)
 				return(out)
 			}
 			my_headers <- httr::add_headers(c('Content-Type'='application/json','Accept'='application/json',Authorization=paste('bearer',.self$get_access(),sep=' ')))
