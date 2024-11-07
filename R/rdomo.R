@@ -159,6 +159,9 @@ DomoUtilities <- setRefClass("DomoUtilities",
 			return(result)
 		},
 		convertDomoDateTime=function(v) {
+			if(is.numeric(v)){
+		    	return(NA)
+		  	}
 
 			date_time <- tryCatch({ as.POSIXct(strptime(v,"%Y-%m-%dT%H:%M:%S")) }, error = function(err) { NA })
 			if (is.na(date_time[1]))
