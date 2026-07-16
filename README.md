@@ -1,5 +1,6 @@
 # R - Domo API SDK (rdomo)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://www.opensource.org/licenses/MIT)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdomoinc%2Frdomo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdomoinc%2Frdomo?ref=badge_shield)
 
 Current Release: 0.1.0
 
@@ -142,3 +143,6 @@ The functions in this package match most parts of the API documented at [develop
 	* **users_list** - list all users
 	* **users_get** - get a single user record
 	* **users_add** - create a user (or users)
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdomoinc%2Frdomo.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdomoinc%2Frdomo?ref=badge_large)
